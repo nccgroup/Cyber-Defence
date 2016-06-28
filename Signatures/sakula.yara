@@ -76,3 +76,43 @@ rule malware_sakula_shellcode {
   condition:
     any of them
 }
+
+
+rule malware_sakula_loader {
+  meta:
+    description = "A small DLL loader (~6KiB) for Sakula malware"
+    author = "David Cannings"
+    md5 = "58d56d6e2cafca33e5a9303a36228ef6"
+
+  strings:
+    /*
+      59                      pop     ecx
+      5B                      pop     ebx
+      6A 69                   push    'i'
+      68 70 2E 6D 73          push    'sm.p'
+      68 73 65 74 75          push    'utes'
+      54                      push    esp             ; Source
+      FF 35 04 20 00 10       push    ds:lpFileName   ; Dest
+      E8 29 1F 00 00          call    strcat
+    */
+    // String stacking for 'setup.msi'
+    $opcodes_string_stack01 = { 6A 69 68 70 2E 6D 73 68 73 65 74 75 }
+    
+    /*
+      48                      dec     eax
+      83 F8 00                cmp     eax, 0
+      0F 84 B2 00 00 00       jz      loc_10001171
+      8A 18                   mov     bl, [eax]
+      80 F3 5C                xor     bl, 5Ch
+      80 FB 00                cmp     bl, 0
+    */
+    $opcodes_decode_loop = { 48 83 F8 00 0F ?? ?? ?? ?? ?? 8A 18 80 F3 ?? 80 FB 00 }
+    
+    // Generic toolmarks from the compiler
+    $str01 = "Win32 Program!"
+    $str02 = "GoLink, GoAsm www.GoDevTool.com"
+    
+  condition:
+    1 of ($opcodes*) and 1 of ($str*)
+}
+
