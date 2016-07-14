@@ -40,8 +40,9 @@ A number of other files use the vulnerable Kaspersky installer in exactly the sa
 
 Thanks to Cedric Halbronn for technical assistance and review during the creation of this document.
 
-Whilst writing this document the website [windbg.info](http://windbg.info/) was very useful.
+Thanks to Marc Ochsenmeier (@[ochsenmeier](https://twitter.com/ochsenmeier)) for clarifying why the Kaspersky executable attempts to load `msi.dll` twice.
 
+Whilst writing this document the website [windbg.info](http://windbg.info/) was very useful.
 
 \newpage
 # Understanding the chain of execution
@@ -386,7 +387,8 @@ Therefore to analyse this code further we must stop debugging before the call at
 
 The first challenge is breaking into the `DllEntryPoint()` code in `msi.dll` before it runs.  The Kaspersky binary uses `LoadLibrary` but the load of the DLL is done entirely by Windows.  Stepping over the `LoadLibrary` call means that code in the `DllEntryPoint` function will be run automatically.  Single stepping through all of `LoadLibrary` is tedious and time consuming.
 
-### Using WinDbg
+
+### Using WinDbg  \label{using_windbg}
 
 The easiest mechanism is to set an exception any time a module named `msi` is loaded using the WinDbg command `sxe`.  This command is explained on [Riham Selim's blog](https://blogs.msdn.microsoft.com/rihamselim/2012/03/14/breaking-on-module-load/) at MSDN.  Filters added in this way can be viewed or modified using the menu option `Debug` > `Event Filters...`.
 
@@ -413,9 +415,9 @@ ntdll!KiFastSystemCallRet:
 7c90e514 c3              ret
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For an unknown reason there is an initial break for `C:\WINDOWS\system32\msi.dll` but the load fails (`eax` is null, no valid handle is returned).  Analysis with Process Monitor also shows the attempted load from `system32` when the executable is not running under a debugger, explanations for why this happens are welcomed (note: this happens before the call to `LoadLibrary`).
+There is an initial break for `C:\WINDOWS\system32\msi.dll` but the load fails (`eax` is null, no valid handle is returned).  This occurs because of the code in `sub_402510` in the Kaspersky installer that loads `msi.dll` and obtains the version number using `DllGetVersion` (note: this first call is safe because `msi.dll` is appended to the result of `GetSystemDirectoryA`).
 
-The second exception is for the planted malicious DLL and `LoadLibrary` returns a handle address of `0012fb68` in `eax`.  
+The second exception is for the planted malicious DLL and `LoadLibrary` returns a handle address of `0012fb68` in `eax`.  In this case the load is unsafe because there is no explicit path, therefore the planted version from the application directory is used.
 
 ### Verifying the module has loaded
 
@@ -1088,6 +1090,12 @@ Now breakpoints can be added which are relative to this base address:
 * Before calling executable: `bp @$t0+3D1`
 
 Note that if you attempt to set breakpoints before the code is loaded WinDbg will not add them correctly.  Hardware (on access) breakpoints could be used if desired (see WinDbg help for command `ba`) but there are a limited number available.
+
+\newpage
+# Changes
+
+* 2016-07-10: v1.0 released publicly.
+* 2016-07-14: v1.1 released with clarified information in section \ref{using_windbg} (credit Marc Ochsenmeier).
 
 # Contact details
 
