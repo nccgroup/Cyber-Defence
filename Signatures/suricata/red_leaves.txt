@@ -1,0 +1,3 @@
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg: "NCC Group - Trojan - Red Leaves magic packet detected (APT10 implant)"; flow:established,to_server; dsize:12; content:"|7a 8d 9b dc|"; offset: 4; depth: 4; flowbits:set,ncc.apt10.beacon_send; threshold:type limit, track by_src, count 1, seconds 600; classtype:trojan-activity; priority:1; sid:1; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "NCC Group - Trojan - Red Leaves magic packet response detected (APT10 implant)"; flowbits:isset,ncc.apt10.beacon_send; flow:established,to_client; dsize:12; content:"|7a 8d 9b dc|"; offset: 4; depth: 4;threshold:type limit, track by_dst, count 1, seconds 600; classtype:trojan-activity; sid:2; rev:1;)
