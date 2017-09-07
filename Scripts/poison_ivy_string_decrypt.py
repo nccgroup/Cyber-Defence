@@ -15,12 +15,8 @@ __author__ = 'Ahmed Zaki'
 __date__ = 'Sept - 2017'
 
 
-def shl(x,n):
-    return (x<<n) & 0xffffffff
-
-def shr(x,n):
-    return (x>>n) & 0xffffffff
-
+def rol(x,n):
+	return ((x << n) | (x >> (32-n))) & 0xffffffff
 
 def get_encoded_string(addr):
     """ Retrieve the bytes at a specific address until a 0 delimeter it found 
@@ -40,6 +36,7 @@ def get_encoded_string(addr):
     
     return enc_bytes
 
+        
 
 def get_args(addr):
     """ Retreives the passed arguments to the decryption function. We are only interested in the key
@@ -88,7 +85,7 @@ def decrypt(key,val):
     res = ''
     for byte in val:
         ch = byte^(key&0xff)
-        temp = (shr(key,0x18) + shl(key, 8)) & 0xffffffff
+        temp = rol(key,8)
         res += chr(ch)
         ## Sign extending the byte
         if byte & 0x80 != 0 :
@@ -100,6 +97,10 @@ def decrypt(key,val):
 
     return res
 
+
+
+
+
 fn_addr = idc.AskAddr(idc.here(), "Enter address of string decoding function")
 
 ## check if address is valid
@@ -107,8 +108,17 @@ if (fn_addr < idc.MinEA()) or (fn_addr > idc.MaxEA()):
     idc.Warning("You have entered an invalid start address")
     idc.Exit
 
+
 for ref in idautils.XrefsTo(fn_addr, flags=0):
     key, enc_str, ins_addr = get_args(ref.frm)
     dec_str = decrypt(key,enc_str)
     print "[+] Decoded String: %s " % dec_str
     idc.MakeComm(ins_addr, dec_str)
+
+
+
+
+
+
+
+
