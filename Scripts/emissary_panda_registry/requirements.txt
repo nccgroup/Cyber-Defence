@@ -1,0 +1,2 @@
+winregistry
+python-registry
