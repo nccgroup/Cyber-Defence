@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 	write_mem_to_file(argv[2], g_decoded_buffer, g_decoded_buffer_size);
 
 	Gdiplus::GdiplusShutdown(gdi_token);
-	VirtualFree(g_decoded_buffer);
+	VirtualFree(g_decoded_buffer, g_decoded_buffer_size, MEM_RELEASE);
 
 	return ERROR_SUCCESS;
 }
