@@ -1,4 +1,4 @@
-# Proof of concept decoder for Chafer - see blog post
+# Proof of concept byte sequence generation for Chafer - see blog post
 # 
 # Author: Nikolaos P - NCC Group
 #   Date: March 2019
