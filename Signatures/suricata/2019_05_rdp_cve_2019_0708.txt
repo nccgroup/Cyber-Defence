@@ -1,0 +1,22 @@
+# Look for the potential signs of CVE-2019-0708, pre encryption.
+#
+# Note this rule is specific to port 3389, but could be expanded
+# using flowbits to other ports if an earlier packet is used for
+# protocol detection, or potentially a string detection on 'Duca'
+# (see https://wiki.wireshark.org/RDP).
+#
+# Sensible values for distances between objects have been chosen.
+# An exploit could potentially change the reserved byte (second 
+# in the packet) or pad the TPKT structure with junk to avoid the
+# 'within' optimisations.
+#
+# 03 00                - TPKT header: version 3, reserved byte 0
+#                        Must be at the beginning of the packet
+# 02 f0                - X.224 COTP: length 2, PDU type 0x0f (DT_DATA)
+# 00 05 00 14 7c 00 01 - T.124 Connect data, Generic Conference Control (ID 0.0.20.124.0.1)
+#                        PDU size ranges from 230-400 bytes, 256 skipped in the rule
+# 03 c0                - RDP Client Network Data
+#                        Skip the header length and channel count (6 bytes)
+# MS_T120 (C string)   - Name of patched control channel
+#                        Must be within 372 bytes (31 channels * 12 bytes per channel)
+alert tcp any any -> any 3389 (msg:"NCC GROUP RDP connection setup with MS_T120 channel, potential CVE-2019-0708"; flow:to_server,established; content:"|03 00|"; offset:0; depth:2; content:"|02 f0|"; distance:2; within:2; content:"|00 05 00 14 7c 00 01|"; within:512; content:"|03 c0|"; distance:3; within:384; content:"MS_T120|00|"; distance:6; within:372; threshold: type limit, track by_src, count 2, seconds 600; classtype:bad-unknown; reference:url,portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2019-0708; sid:1; rev:1;)
