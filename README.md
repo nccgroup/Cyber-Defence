@@ -10,8 +10,8 @@ To engage with our CIRT team due to a breach please contact cirt@nccgroup.com
 
 # NCC Group Incident Response Services
 
-NCC Group operates globaly incident response. We have incident response teams in the USA, Canada, United Kingdom, Netherlands, Germany, 
-Denmark, Spain, Singapore, Australia and Japan.
+NCC Group operates a global incident response division. We have incident response teams in the USA, Canada, United Kingdom, Netherlands, 
+Germany, Denmark, Spain, Singapore, Australia and Japan.
 
 To learn more see: https://www.nccgroup.com/us/protection-detection-and-response/incident-response/
 
