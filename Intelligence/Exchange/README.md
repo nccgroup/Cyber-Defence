@@ -11,7 +11,7 @@ We've also included md5check.bat which is able to use the MD5 hash sets to ident
 
 # Incident Response
 
-To engage with our CIRT team due to a breach please contact cirt@nccgroup.com
+To engage with our CIRT due to a breach please contact cirt@nccgroup.com
 
 NCC Group operates a global incident response division. We have incident response teams in the USA, Canada, United Kingdom, Netherlands, 
 Germany, Denmark, Spain, Singapore, Australia and Japan.
