@@ -7,15 +7,21 @@ REM °²                                                  ²°
 REM °² twitter: @ollieatnccgroup                        ²°
 REM °²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²°
 
-REM example usage
+REM °²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²°
+REM 
+REM example usage from in the root of the Exchange directory
+REM
 REM md5check.bat "C:\Users\Ollie Whitehouse\Downloads\Exchange2013-x64-cu23\setup\MD5"
+REM
+REM °²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²°
 
 REM Paramater checking
 set "param1=%~1"
 
 if "!param1!"=="" ( 
     echo [i] Get hash set from https://github.com/nccgroup/Cyber-Defence/tree/master/Intelligence/Exchange
-    echo [i] then supply as paramater e.g. check.bat "C:\Path\to\MD5"
+    echo [i] then supply as paramater e.g. md5check.bat "C:\Path\to\MD5"
+    echo [i] NOTE: do this in the root of the Exchange directory
     exit /b
 )
 
