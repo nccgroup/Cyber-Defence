@@ -1,7 +1,7 @@
 # Microsoft's
 we originally generated these on Saturday March 6th, 2021.
 
-as of late Sunday (7th) / early Monday (8th) UTC Microsoft released  their own master set:
+as of early Monday (8th) UTC Microsoft released  their own master set:
 
 * https://github.com/microsoft/CSS-Exchange/tree/main/Security/Baselines
 
