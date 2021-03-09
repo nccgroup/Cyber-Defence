@@ -5,7 +5,7 @@ as of early Monday (8th) UTC Microsoft released  their own master set:
 
 * https://github.com/microsoft/CSS-Exchange/tree/main/Security/Baselines
 
-as of early Tuesday (9th) UTC Microsoft released their own hash verificaiton script:
+as of early Tuesday (9th) UTC Microsoft released their own hash verification script:
 
 * https://github.com/microsoft/CSS-Exchange/blob/main/Security/CompareExchangeHashes.ps1
 
