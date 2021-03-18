@@ -1,0 +1,87 @@
+# Suricata rules to detect CVE-2021-22986 exploit chain. Should work with Suricata 4.x and up
+# By Fox-IT SRT / NCC Group RIFT
+
+# SL - SSRF auth bypass with empty bigipAuthCookie
+alert http any any -> any any (msg:"FOX-SRT - Suspicious - F5 BIG-IP/BIG-IQ iControl REST SSRF auth bypass attempt observed #1";
+	flow:established,to_server;
+	content:"POST"; http_method;
+	content:"/mgmt/shared/authn/login"; http_uri; nocase;
+	content:"|22|bigipAuthCookie|22|: |22 22|"; fast_pattern;
+	threshold:type limit, track by_src, count 1, seconds 600;
+	classtype:trojan-activity;
+	priority:1;
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623;
+	metadata:created_at 2021-03-18; metadata:ids suricata;
+	sid:21003355; rev:2;)
+
+# SL - SSRF auth bypass with login reference and user reference
+alert http any any -> any any (msg:"FOX-SRT - Suspicious - F5 BIG-IP/BIG-IQ iControl REST SSRF auth bypass attempt observed #2"; 
+	flow:established,to_server; 
+	content:"POST"; http_method; 
+	content:"/mgmt/shared/authn/login"; http_uri; nocase; fast_pattern; 
+	content:"|22|loginReference|22|"; content:"|22|userReference|22|"; 
+	threshold:type limit, track by_src, count 1, seconds 600; 
+	classtype:trojan-activity; 
+	priority:1; 
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623; 
+	metadata:created_at 2021-03-18; metadata:ids suricata; 
+	sid:21003356; rev:2;)
+
+# SL - RCE using bundle-install-tasks endpoint
+alert http any any -> any any (msg:"FOX-SRT - Trojan - F5 BIG-IP/BIG-IQ iControl REST RCE attempt observed #1"; 
+	flow:established,to_server; 
+	content:"POST"; http_method; 
+	content:"/mgmt/tm/access/bundle-install-tasks"; http_uri; nocase; fast_pattern; 
+	content:"|7b 22|filePath|22 3a 22 60|"; http_client_body; 
+	flowbits: set,fox.bigip.rce.post; 
+	threshold:type limit, track by_src, count 1, seconds 600; 
+	classtype:trojan-activity; 
+	priority:3; 
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623; 
+	metadata:created_at 2021-03-15; metadata:ids suricata; 
+	sid:21003351; rev:4;)
+
+alert http any any -> any any (msg:"FOX-SRT - Trojan - Successful F5 BIG-IP/BIG-IQ iControl REST RCE observed #1"; 
+	flow:established,to_client; 
+	flowbits: isset,fox.bigip.rce.post; 
+	content:"202"; http_stat_code; 
+	content:"Accepted"; http_stat_msg; fast_pattern; 
+	threshold:type limit, track by_src, count 1, seconds 600; 
+	classtype:trojan-activity; 
+	priority:1; 
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623; 
+	metadata:created_at 2021-03-12; metadata:ids suricata; 
+	sid:21003352; rev:4;)
+
+# SL - RCE using bash util endpoint
+alert http any any -> any any (msg:"FOX-SRT - Trojan - F5 BIG-IP/BIG-IQ iControl REST RCE attempt observed #2"; 
+	flow:established,to_server; 
+	content:"POST"; http_method; 
+	content:"/mgmt/tm/util/bash"; http_uri; nocase; fast_pattern; 
+	content:"|22|command|22|: |22|run|22|"; 
+	content:"|22|utilCmdArgs|22|: |22|"; 
+	flowbits: set,fox.bigip.rce.post; 
+	threshold:type limit, track by_src, count 1, seconds 600; 
+	classtype:trojan-activity; 
+	priority:1; 
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623; 
+	metadata:created_at 2021-03-18; metadata:ids suricata; 
+	sid:21003357; rev:2;)
+
+alert http any any -> any any (msg:"FOX-SRT - Trojan - Successful F5 BIG-IP/BIG-IQ iControl REST RCE observed #2"; 
+	flow:established,to_client; 
+	flowbits: isset,fox.bigip.rce.post; 
+	content:"200"; http_stat_code; 
+	content:"|22|commandResult|22|:|22|"; fast_pattern; 
+	threshold:type limit, track by_src, count 1, seconds 600; 
+	classtype:trojan-activity; 
+	priority:1; 
+	reference:cve,CVE-2021-22986; 
+	reference:url,support.f5.com/csp/article/K02566623; 
+	metadata:created_at 2021-03-12; metadata:ids suricata; 
+	sid:21003358; rev:2;)
